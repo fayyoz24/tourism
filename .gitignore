@@ -1,4 +1,11 @@
 .env
 venv/
-/venv
 __pycache__/
+env/
+.env
+media/
+staticfiles/
+static/
+db.sqlite3
+notes.txt
+logs/

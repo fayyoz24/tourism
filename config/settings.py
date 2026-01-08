@@ -11,21 +11,23 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
+import datetime
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+SECRET_KEY = config("SECRET_KEY")
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = config("DEBUG", default=False, cast=bool)
+
+ALLOWED_HOSTS = [config("ALLOWED_HOST")]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%oyw^odh)tt2_l)8#jl6h1b^duab7!m=y!d-zxb+e8$%vu@@al'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -37,17 +39,82 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Third-party apps
+    "corsheaders",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "rest_framework_simplejwt",
+
+    # Local apps
+    'apps.users',
+    'apps.tours',
+    'apps.locations',
+    'apps.bookings',
 ]
 
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer <token>"'
+        }
+    },
+    "USE_SESSION_AUTH": False,  # disable Django login in Swagger UI if you're only using JWT
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(minutes=1000),
+    "REFRESH_TOKEN_LIFETIME": datetime.timedelta(days=900),
+}
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",                    # local frontend
+    "http://127.0.0.1:3000",                    # optional for local testing
 ]
+
+CORS_EXPOSE_HEADERS = [
+    "Content-Type",
+    "Content-Disposition",
+]
+
+CORS_ALLOW_HEADERS = (
+    *default_headers,
+    "Content-Type",
+    "Content-Disposition",
+    "Accept-Language"
+)
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_THROTTLE_CLASSES': [
+#         'bosh_sahifa.throttles.PostPerDayThrottle',
+#     ],
+#     'DEFAULT_THROTTLE_RATES': {
+#         'post_per_day': '5/day',  # 5 requests per IP per day
+#     },
+# }
+
+
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    # WhiteNoise must come right after SecurityMiddleware
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    'config.middleware.BlockBlockedIPsMiddleware',  # Add custom IP blocking middleware here
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+]
+
 
 ROOT_URLCONF = 'config.urls'
 
@@ -97,7 +164,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
+AUTH_USER_MODEL = 'users.User'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
