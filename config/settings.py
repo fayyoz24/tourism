@@ -24,7 +24,26 @@ SECRET_KEY = config("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = [config("ALLOWED_HOST")]
+if DEBUG:
+    ALLOWED_HOSTS = ["localhost", '127.0.0.1']
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+
+else:
+    ALLOWED_HOSTS = [config('ALLOWED_HOST'), config('ALLOWED_HOST_1')]
+    DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+    }
+}
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -52,7 +71,7 @@ INSTALLED_APPS = [
     'apps.locations',
     'apps.bookings',
 ]
-
+ 
 
 SWAGGER_SETTINGS = {
     "SECURITY_DEFINITIONS": {
@@ -103,7 +122,7 @@ CORS_ALLOW_HEADERS = (
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     # WhiteNoise must come right after SecurityMiddleware
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    # "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -139,12 +158,6 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
 
 
 # Password validation

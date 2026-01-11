@@ -40,7 +40,7 @@ class User(AbstractUser):
 
 
 class BlockedIP(models.Model):
-    user_name = models.CharField(max_length=150)  # To know which user blocked this IP
+    user_name = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  # To know which user blocked this IP
     ip_address = models.GenericIPAddressField(unique=True)  # Store IP addresses
     created_at = models.DateTimeField(auto_now_add=True)  # Track when it was added
 
