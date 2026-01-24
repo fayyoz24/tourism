@@ -1,5 +1,6 @@
 from django.db import models
 from .functions import guide_image_dir
+from users.models import User
 # Create your models here.
 class Language(models.Model):
     name = models.CharField(max_length=100)
@@ -13,8 +14,10 @@ class Language(models.Model):
         verbose_name_plural = "Languages"  # plural name
 
 class Guide(models.Model):
-    name = models.CharField(max_length=100)
-    bio = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=100, blank=True, null=True)
+    las_name = models.CharField(max_length=100, blank=True, null=True)
+    bio = models.TextField(default=f"Hello My name is {user.username}")
     profile_picture = models.ImageField(upload_to=guide_image_dir)
     lang = models.ManyToManyField(Language, related_name='guides')
     created_at = models.DateTimeField(auto_now=True)
