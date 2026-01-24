@@ -9,3 +9,4 @@ static/
 db.sqlite3
 notes.txt
 logs/
+mediafiles/

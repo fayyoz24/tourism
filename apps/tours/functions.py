@@ -1,4 +1,4 @@
-APP_NAME = 'guide'
+MODEL_NAME = 'guides'
 
 def guide_image_dir(instance, filename):
-    return f"{instance.name}/{filename}"
+    return MODEL_NAME+f"/{instance.name}/{filename}"
